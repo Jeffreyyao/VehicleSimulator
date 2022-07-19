@@ -35,10 +35,9 @@ class Node:
         self.parent = parent # Parent node
         self.t_from_parent = t_from_parent
         self.path_from_parent = path_from_parent
-        self.next = []
 
-class RRTPlanner:
-    def __init__(self, size, target, obstacles, dynamics, start_state, max_steer, max_velocity, tau):
+class DynRRTPlanner:
+    def __init__(self, size, target, obstacles, dynamics, start_state, max_steer, max_velocity, tau, k):
         self.size = size
         self.target = target
         self.obstacles = obstacles
@@ -46,10 +45,10 @@ class RRTPlanner:
         self.max_steer = max_steer
         self.max_velocity = max_velocity
         self.tau = tau # time step between integration
-        self.k = 1000 # max number of nodes to explore
+        self.k = k # max number of nodes to explore
 
         self.rk_solver = RungeKuttaSolver.RungeKuttaSolver(dynamics,len(start_state))
-        self.time_range = [0.25,0.75]
+        self.time_range = [0.5,0.5]
         self.node_list = [Node(np.array(start_state))]
 
     def point_is_valid(self, point):
@@ -103,9 +102,7 @@ class RRTPlanner:
                 state_new = path[-1]
                 node_new = Node(state_new.copy(), node_nearest, t_rand, path)
                 self.node_list.append(node_new)
-                node_nearest.next.append(node_new)
                 if state_new[:2] in self.target:
-                    print(f"target reached with {len(self.node_list)} nodes")
                     return node_new
     
     def render_map(self, target_node=None):
@@ -133,6 +130,10 @@ if __name__ == "__main__":
     obstacles = [Object([1.5,1.25],[3,0.5],"Obstacle","Rectangle"),
                 Object([2.5,2.5],[3,0.5],"Obstacle","Rectangle")]
     start_state = [0.5,0.5,0,0]
-    rp = RRTPlanner([4,4],target,obstacles,deepracer.dynamics,start_state,deepracer.max_u[0],deepracer.max_u[1],0.03)
+    k = 1000
+    rp = DynRRTPlanner([4,4],target,obstacles,deepracer.dynamics,start_state,deepracer.max_u[0],deepracer.max_u[1],0.03,k)
     target_node = rp.rrt()
-    if True: rp.render_map(target_node)
+    if target_node:
+        print(f"target reached with {len(rp.node_list)} nodes")
+    else: print(f"target not reached after {rp.k} nodes")
+    rp.render_map(target_node)

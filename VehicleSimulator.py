@@ -6,7 +6,7 @@ from PyQt5 import QtTest
 from PIL import Image, ImageDraw
 import numpy as np
 
-import RungeKuttaSolver, RRTPlanner, Models
+import RungeKuttaSolver, DynRRTPlanner, Models
 
 class VehicleSimulator(QWidget):
     def __init__(self):
@@ -33,6 +33,7 @@ class VehicleSimulator(QWidget):
         self.setLayout(self.box)
 
         self.model = Models.DeepRacerModel()
+        #self.model = Models.DeepRacerModelAlt()
         #self.model = Models.BicycleModel(self.vehicle_length)
         self.dynamics_dimension = self.model.dimensions
         self.dynamics = self.model.dynamics
@@ -82,9 +83,9 @@ class VehicleSimulator(QWidget):
         y = event.pos().y()
         [x,y] = self.sim2world([x,y])
         if event.button()==Qt.LeftButton:
-            self.target = RRTPlanner.Object([x,y],self.target_default_size,"Target","Rectangle")
+            self.target = DynRRTPlanner.Object([x,y],self.target_default_size,"Target","Rectangle")
         elif event.button()==Qt.RightButton:
-            self.obstacles.append(RRTPlanner.Object([x,y],self.obstacle_default_size,"Obstacle","Rectangle"))
+            self.obstacles.append(DynRRTPlanner.Object([x,y],self.obstacle_default_size,"Obstacle","Rectangle"))
 
     def timeout(self):
         self.x = self.rk_solver.RK4(self.x,self.u,self.tau)
@@ -106,7 +107,7 @@ class VehicleSimulator(QWidget):
         y = pos[1]/self.sim_height*self.world_height
         return [x,y]
 
-    def draw_object(self, draw, obj:RRTPlanner.Object):
+    def draw_object(self, draw, obj:DynRRTPlanner.Object):
         [x,y] = self.world2sim(obj.position)
         [w,l] = self.world2sim(obj.size)
         color = "#0000EE"
@@ -140,7 +141,7 @@ class VehicleSimulator(QWidget):
 
     def start_rrt(self):
         self.is_rrt_started = True
-        rrt_planner = RRTPlanner.RRTPlanner(self.world_size,self.target,self.obstacles,self.dynamics,self.x,self.max_steer,self.max_velocity,self.tau)
+        rrt_planner = DynRRTPlanner.DynRRTPlanner(self.world_size,self.target,self.obstacles,self.dynamics,self.x,self.max_steer,self.max_velocity,self.tau,1000)
         target_node = rrt_planner.rrt()
         if target_node is not None:
             transitions = []
