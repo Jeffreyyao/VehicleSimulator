@@ -65,7 +65,7 @@ class VehicleSimulator(QWidget):
         elif event.key() == Qt.Key_Down:
             self.u[1] = -self.max_velocity
         elif event.key() == Qt.Key_Space and not self.is_rrt_started:
-            self.start_rrt()
+            self.start_dyn_rrt()
         elif event.key() == Qt.Key_Backspace:
             self.target = None
             self.obstacles = []
@@ -139,7 +139,7 @@ class VehicleSimulator(QWidget):
     def update_status(self, x, u):
         self.status.setText(f"Steer: {str(u[0])[:5]} Velocity: {str(u[1])}\nx: {str(x[0])[:5]} y: {str(x[1])[:5]} theta: {str(x[2])[:5]}")
 
-    def start_rrt(self):
+    def start_dyn_rrt(self):
         self.is_rrt_started = True
         rrt_planner = DynRRTPlanner.DynRRTPlanner(self.world_size,self.target,self.obstacles,self.dynamics,self.x,self.max_steer,self.max_velocity,self.tau,1000)
         target_node = rrt_planner.rrt()
