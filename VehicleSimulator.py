@@ -6,7 +6,7 @@ from PyQt5 import QtTest
 from PIL import Image, ImageDraw
 import numpy as np
 
-import RungeKuttaSolver, DynRRTPlanner, Models
+import RungeKuttaSolver, DynRRTPlanner, RRTStarPlanner, Models
 
 class VehicleSimulator(QWidget):
     def __init__(self):

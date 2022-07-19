@@ -90,7 +90,7 @@ class RRTStarPlanner:
         
     def near(self, center):
         n = len(self.node_list)
-        r = 2*min(self.eta,self.gamma*(math.log2(n)/n)**(1/self.d)) # radius to search nodes nearby
+        r = 1.5*min(self.eta,self.gamma*(math.log2(n)/n)**(1/self.d)) # radius to search nodes nearby
         res = []
         for node in self.node_list:
             if self.dist(node.point,center)<=r: res.append(node)
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     obstacles = [Object([1.5,1.25],[3,0.5],"Obstacle","Rectangle"),
                 Object([2.5,2.5],[3,0.5],"Obstacle","Rectangle")]
     start_state = [0.5,0.5]
-    eta, k = 1, 1000
+    eta, k = 1, 500
     rp = RRTStarPlanner([4,4],target,obstacles,start_state,eta,k)
     #target_node = rp.rrt()
     target_node = rp.rrt_star()
