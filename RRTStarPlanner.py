@@ -43,6 +43,7 @@ class RRTStarPlanner:
         self.eta = eta # max step size between nodes
         self.k = k # max number of nodes to explore
         self.node_list = [Node(np.array(start_point))]
+        self.cost_per_node = self.eta
 
         self.d = 2 # dimsension of space
         zeta = math.pi # area of a unit 2d circle
@@ -84,8 +85,7 @@ class RRTStarPlanner:
     
     def collision_free(self, point1, point2):
         for point in np.linspace(point1,point2,10):
-            for obs in self.obstacles:
-                if point in obs: return False
+            if not self.point_is_valid(point): return False
         return True
         
     def near(self, center):
@@ -120,10 +120,10 @@ class RRTStarPlanner:
             if self.collision_free(point_new,node_nearest.point):
                 near_list = self.near(point_new)
                 near_min = node_nearest
-                cost_min = cost+node_nearest.cost
+                cost_min = cost+node_nearest.cost+self.cost_per_node
                 for near in near_list:
                     if self.collision_free(point_new,near.point):
-                        cost_near = self.dist(near.point,point_new)+near.cost
+                        cost_near = self.dist(near.point,point_new)+near.cost+self.cost_per_node
                         if cost_near < cost_min:
                             near_min = near
                             cost_min = cost_near
@@ -134,7 +134,7 @@ class RRTStarPlanner:
                     else: target_node=min(target_node,node_new,key=lambda x:x.cost)
                 for near in near_list:
                     if self.collision_free(point_new,near.point):
-                        cost_new = node_new.cost+self.dist(point_new,near.point)
+                        cost_new = node_new.cost+self.dist(point_new,near.point)+self.cost_per_node
                         if cost_new < near.cost:
                             near.parent = node_new
                             near.cost = cost_new
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     obstacles = [Object([1.5,1.25],[3,0.5],"Obstacle","Rectangle"),
                 Object([2.5,2.5],[3,0.5],"Obstacle","Rectangle")]
     start_state = [0.5,0.5]
-    eta, k = 1, 500
+    eta, k = 2, 1000
     rp = RRTStarPlanner([4,4],target,obstacles,start_state,eta,k)
     #target_node = rp.rrt()
     target_node = rp.rrt_star()

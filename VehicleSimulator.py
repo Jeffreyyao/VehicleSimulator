@@ -32,8 +32,8 @@ class VehicleSimulator(QWidget):
         self.box.addWidget(self.status)
         self.setLayout(self.box)
 
-        self.model = Models.DeepRacerModel()
-        #self.model = Models.DeepRacerModelAlt()
+        #self.model = Models.DeepRacerModel()
+        self.model = Models.DeepRacerModelAlt()
         #self.model = Models.BicycleModel(self.vehicle_length)
         self.dynamics_dimension = self.model.dimensions
         self.dynamics = self.model.dynamics
